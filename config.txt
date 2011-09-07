@@ -1,0 +1,16 @@
+# this is a configuration file for the mptm app
+# names in square brackets denote sections (e.g. [section])
+# comments are lines starting with a hash (#) character
+# options are given in the "name = value" format
+# empty values are not allowed
+# BE CAREFUL WHEN EDITING
+
+# this section provides options for the communication between the
+# time keeping software and the interface to the hardware
+[communication]
+
+# the host providing the times
+host = localhost
+# the port that should be accessed at the host for getting the times
+port = 6665
+
