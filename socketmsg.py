@@ -1,6 +1,29 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
+import vcheck
 
 import re
+import watchio
+
+sHello = "HALLO"
+
+def hellomsg(num_devices):
+	return bytes("%s %d" % (sHello,num_devices), 'ASCII')
+	
+def gethello(byte_msg):
+	msg = str(byte_msg, 'ASCII')
+	
+	exp=re.compile("%s ([0-9]*)" % sHello)
+	
+	num_list = exp.findall(msg)
+	
+	if len(num_list) < 1:
+		watchio.error("Invalid Hello.")
+		return None
+	else:
+		return int(num_list[0])
+	
+	
 
 def encode(num_time_list):
 	msg = ["B:%d:%d:E" % item for item in num_time_list]

@@ -12,5 +12,5 @@
 # the host providing the times
 host = localhost
 # the port that should be accessed at the host for getting the times
-port = 6665
+port = 33333
 

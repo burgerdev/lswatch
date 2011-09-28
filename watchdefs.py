@@ -2,6 +2,67 @@
 
 
 import watchio
+import threading
+
+
+
+
+class CurrentRoundInterface:
+	_currentround = None
+	
+	def setcurrentround(self,n):
+	# set current round to n
+	# remember: n is a positive integer, i.e. greater than zero
+	
+		if not CurrentRoundInterface.checknumber(n, "%s.setcurrentround" % type(self)):
+			return
+				
+		if isinstance(self,Person) and len(self._times)<=n:
+			self._times += [dict() for i in range(n-len(self._times))]
+			
+		self._currentround = n-1
+		return
+	
+	def getcurrentround(self):
+		if self._currentround is None:
+			return None
+		else:
+			return self._currentround +1
+			
+			
+	def checknumber(n,s='<CurrentRoundInterface>.checknumber'):
+		if not isinstance(n,int):
+			try: # TODO this is bogus! replace by better call
+				n=int(n)
+			except ValueError:
+				watchio.error("Argument to %s must be convertible to an integer." % s)
+				return False
+				
+		
+		
+		if n<1:
+			watchio.error("Argument to %s must be a positive integer." % s)
+			return False
+			
+		return True
+	
+	
+class Lockable:
+	datalock = threading.RLock()
+	
+	def lock(self):
+		watchio.debug("attempting to lock %s" % type(self))
+		self.datalock.acquire()
+		watchio.debug("%s locked" % type(self))
+		
+	def unlock(self):
+		watchio.debug("attempting to unlock %s" % type(self))
+		self.datalock.release()
+		watchio.debug("%s unlocked" % type(self))
+		
+		
+		
+		
 
 class PersonDetail:
 	
@@ -33,13 +94,40 @@ class PersonDetail:
 		
 	
 	
-class Person:
+class Person(CurrentRoundInterface,Lockable):
 
 	# times array for this person
-	times = []
+	# this is a list of dictionaries
+	# - the list items correspond to rounds
+	# - the dict entries are of the form {<device_number>: <time>}
+	
+	
 	
 	# details, PersonDetail object
-	details = PersonDetail()
+	
+	def __init__(self, name=None, address=None, phone=None):
+		self._times = []
+		self.details = PersonDetail()
+		self.details.update(name,address,phone)
+		self.setcurrentround(1)
+	
+	
+			
+	def updatetimes(self,data):
+	# set the times of the current round to the ones provided by data
+	# data is a list of 2-tuples: (<number of device>, <time>)
+		
+		if self._currentround is None:
+			self.setcurrentround(1)
+		
+		for n,t in data:
+			self._times[self._currentround][n] = t
+			
+		return
+	
+	def __str__(self):
+		s = "%s: %s" % (self.details.name,repr(self._times[self._currentround]))
+		return s
 	
 	
 	
@@ -78,18 +166,74 @@ def default_rankfun(person1, person2):
 	return equal
 	
 	
-class Tournament:
+class Tournament(CurrentRoundInterface, Lockable):
 	# providing a handling class for tournaments and the persons involved
+	# TODO replace all calls to _times[number-1] by a method
 	
 	# the persons array
 	persons = []
+	
+	# the index of the current person
+	_currentperson = None
+	
+
+	
 	
 	# the ruleset to be applied, a function that takes two persons 
 	# and outputs -1, 0 or 1 respectively
 	rankfun = default_rankfun
 	
 	def __init__(self):
-		pass
+		self.setcurrentround(1)
+		#self.setcurrentperson(1)
+		
+	def setcurrentperson(self,n):
+		if not CurrentRoundInterface.checknumber(n,"%s.setcurrentperson" % type(self)):
+			return
+		
+		#while len(self.persons)<=n:
+		#	self.persons.append(Person())
+		
+		if len(self.persons)<=n:
+			self.persons += [Person() for i in range(n-len(self.persons))]
+			
+		self._currentperson = n-1
+		return
+	
+	def getcurrentperson(self):
+		if self._currentperson is None:
+			return None
+		else:
+			return self._currentperson +1
+		
+
+
+	def setcurrentround(self,n, sub=True):
+	# sets the current round in this object and in all available person objects if sub is True
+		super().setcurrentround(n)
+		
+		if sub:
+			for person in self.persons:
+				person.setcurrentround(n)
+		
+		return
+		
+	def lock(self,sub=False):
+	# if sub is set to true you promise not to add stuff to the Tournament!
+		super().lock()
+		
+		if sub:
+			for person in self.persons:
+				person.lock()
+				
+	def unlock(self,sub=False):
+	# if sub is set to true you promise that you locked ALL persons in the Tournament before!
+		super().unlock()
+		
+		if sub:
+			for person in self.persons:
+				person.unlock()
+		
 	
 	def ranksort(self):
 	# apply sorting by ruleset saved in rankfun
@@ -101,13 +245,14 @@ class Tournament:
 		
 		
 	def __str__(self):
-		ranks = self.ranksort()
-		sl = ["%d\t%s\n" % (ranks[n], self.persons[n].details.name) for n in range(len(self.persons))]
-		sl.insert(0,"Rank\tName\n")
+		#ranks = self.ranksort()
+		sl = ["%s\t%s\n" % (person.details.name, repr(person._times[person.getcurrentround()-1])) for person in self.persons]
+		sl.insert(0,"Name\t Times\n")
 		
 		return "".join(sl)
 		
 	
+
 	
 	
 	
