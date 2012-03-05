@@ -26,7 +26,7 @@ if __name__=="__main__":
     sock = socket.socket()
 
 
-
+    print((host,port))
     sock.bind((host,port))
 
     sock.listen(1)

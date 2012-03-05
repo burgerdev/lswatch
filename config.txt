@@ -10,7 +10,7 @@
 [communication]
 
 # the host providing the times
-host = localhost
+host = 46.4.221.200
 # the port that should be accessed at the host for getting the times
-port = 6665
+port = 53
 
