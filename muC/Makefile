@@ -52,7 +52,7 @@ TARGET = test
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c disp.c timer.c adc.c
+SRC = $(TARGET).c disp.c timer.c adc.c lcd-routines.c
 
 
 # List Assembler source files here.

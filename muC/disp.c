@@ -5,38 +5,34 @@
 
 #include "globals.h"
 #include "disp.h"
+#include "lcd-routines.h"
 
-uint8_t disp(uint8_t i)
+uint8_t disp(uint32_t i)
 {
-        if (i>7|| i<0)
-        {
-                err();
-                return 0;
-        }
+	lcd_clear();
+	lcd_command(LCD_SET_DDADR + 7);
+	lcd_data_s('s');
 
-	if (i==0)
+	uint8_t data[8];
+	uint8_t n = itoa(i, data);
+
+	for (uint8_t i=0;i<n;i++) lcd_data_s(data[i]);
+	
+	return 1;
+}
+
+uint8_t disp_str(uint8_t *c)
+{
+	lcd_clear();
+
+	uint8_t n = 0;
+	while (c[n])
 	{
-		for(uint8_t j=3;j;j--);
-		{
-			disp(1);
-			_delay_ms(200);
-			disp(2);
-			_delay_ms(200);
-		}
-		disp(3);
-		return 1;
+		lcd_data(c[n]);
+		n++;
 	}
 
-	disp_off();
-
-        if (i & 1)
-                LEDLOW_ON();
-        if (i & 2)
-                LEDMID_ON();
-        if (i & 4)
-                LEDHI_ON();
-
-        return 1;
+	return 1;
 }
 
 void disp_off()
@@ -48,17 +44,32 @@ void disp_off()
 
 void err()
 {
-        int i;
-                for(i=0;i<5;i++)
-                {
-                        LEDLOW_ON();
-                        LEDMID_ON();
-                        LEDHI_ON();
-                        _delay_ms(100);
-                        LEDLOW_OFF();
-                        LEDMID_OFF();
-                        LEDHI_OFF();
-                        _delay_ms(100);
-                }
+	lcd_clear();
+	lcd_string("Error!");
 }
 
+uint8_t itoa(uint32_t i, uint8_t *data)
+{
+	uint8_t def = '0';
+	uint8_t n = 0;
+
+	data[0] = def;
+	data[1] = def;
+	data[2] = '.';
+	data[3] = def;
+
+	while(i>0 && n<7)
+	{
+		data[n] = '0' + i%10;
+		i = i/10;
+		n++;
+		if (n==2) n++;
+	}
+
+
+	if (n<4)
+		n = 4;
+
+	return n;
+
+}
