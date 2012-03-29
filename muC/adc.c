@@ -2,6 +2,13 @@
 #include <avr/io.h>
 #include "adc.h"
 
+// input clock for adc must be 50kHz - 200kHz
+
+// prescaler is 128
+//#define PRESCALER (1<<ADPS0 | 1<<ADPS1 | 1<<ADPS2)
+// prescaler is 32 - for 4MHz -> 125kHz
+#define PRESCALER (1<<ADPS0 | 1<<ADPS2)
+
 uint16_t getADC(uint16_t n)
 {
 	
@@ -29,5 +36,5 @@ void adc_setup()
 {
 	// init ADC
 	ADMUX = 1<<REFS0;
-	ADCSRA = 1<<ADEN;
+	ADCSRA = 1<<ADEN  | PRESCALER;
 }

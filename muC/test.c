@@ -50,60 +50,15 @@ int main(void)
 
 	// C is input
 	DDRC = 0x00;
-	PORTC = 0xFF;
+	PORTC = 0x00;
 	
-	DDRC |= 1<<PC1;
-	PORTC &= ~(1<<PC1 | 1<<PC0);
 
 	// D is input
 	DDRD = 0;
 	PORTD = 0xFF;
-	/*
-	adc_setup(); */
-
-
-	/*
-	// init the lcd_c
-	DDRC = 0xFF;
-	PORTC = 0x00;
-	_delay_ms(500);
-
-	// 4bit mode
-	PORTC = 0b0010;
-	lcd_enable();
-
-	// 4bit, 2 lines, 5x7
-	PORTC = 0b0010;
-	lcd_enable();
-	PORTC = 0b1000;
-	lcd_enable();
-
-	// disp on, cursor on, blink on
-	PORTC = 0b0000;
-	lcd_enable();
-	PORTC = 0b1111;
-	lcd_enable();
-
-	// clear
-	PORTC = 0b0000;
-	lcd_enable();
-	PORTC = 0b0001;
-	lcd_enable();
 	
-	// auto-increment
-	PORTC = 0b0000;
-	lcd_enable();
-	PORTC = 0b0110;
-	lcd_enable();
-
-	lcd_data('T');
-	lcd_data('T');
-	lcd_data('T');
-	lcd_data('T');
-
-	_delay_ms(1000);
-	lcd_clear();
-	*/
+	
+	adc_setup(); 
 
 	lcd_init();
 	disp(0);
@@ -188,6 +143,20 @@ uint8_t button_pressed(void)
 
 
 void loop_main_test()
+{
+	uint32_t s = 0;
+	start();
+	for (int i = 0; i<100; i++)
+		s += getADC(16)>900 ? 1 : 0;
+	stop();
+	//disp(time_s*100 + time_ms/10);
+	//uint16_t ans = getADC(16);
+	disp(s*100);
+	//_delay_ms(2000);
+	
+}
+
+void loop_main_lcd_demo()
 {
 	uint8_t first = 1;
 	while(1)
