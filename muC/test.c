@@ -9,6 +9,7 @@
 #include "timer.h"
 #include "adc.h"
 #include "lcd-routines.h"
+#include "ls.h"
 
 
 void SWAP_STATE(void)
@@ -142,26 +143,26 @@ uint8_t button_pressed(void)
 }
 
 
-void loop_main_test()
+void loop_main_ls_demo()
 {
 	uint32_t s = 0;
 	start();
 	for (int i = 0; i<100; i++)
 		s += getADC(16)>900 ? 1 : 0;
 	stop();
-	//disp(time_s*100 + time_ms/10);
+	disp(time_s*100 + time_ms/10);
 	//uint16_t ans = getADC(16);
-	disp(s*100);
+	//disp(s*100);
 	//_delay_ms(2000);
 	
 }
 
-void loop_main_lcd_demo()
+void loop_main_test()
 {
 	uint8_t first = 1;
 	while(1)
 	{
-		if (button_pressed())
+		if (broken())
 		{
 			if (first)
 			{
@@ -175,10 +176,10 @@ void loop_main_lcd_demo()
 				disp(time_s*100 + time_ms/10);
 				first = 1;
 			}
-			_delay_ms(500);
+			_delay_ms(LS_WAIT_TIME_MS);
 		}
-		else
-			_delay_ms(10);
+		//else
+		//	_delay_ms(10);
 	}
 	
 }
