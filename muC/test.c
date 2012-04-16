@@ -49,9 +49,9 @@ int main(void)
 	DDRB = 0xFF;
 	PORTB = 0x00;
 
-	// C is input
-	DDRC = 0x00;
-	PORTC = 0x00;
+	// C is input, except PC5
+	DDRC = 1<<PC5;
+	PORTC = 1<<PC5;
 	
 
 	// D is input
@@ -72,8 +72,11 @@ int main(void)
 	while (1)
 	{
 		//loop_main();
-		loop_main_test();
-		//loop_main();
+		if (PIND & 1<<PD0)
+			loop_main_test();
+		else
+			loop_main_radio_check();
+		//loop_main_debug();
 		//blink(1);
 	}
 
@@ -154,6 +157,31 @@ void loop_main_ls_demo()
 	//uint16_t ans = getADC(16);
 	//disp(s*100);
 	//_delay_ms(2000);
+	
+}
+
+void loop_main_debug()
+{
+	disp_str("TEST");
+	_delay_ms(1000);
+}
+
+void loop_main_radio_check()
+{
+	while(1)
+	{
+
+		// one ADC(1024) takes 120ms
+		// -> 640*ADC(16) takes 1.2s
+		uint16_t sum = 0;
+		for (uint16_t k=0; k<640; k++)
+			sum += getADC(16) > 900 ? 1 : 0;
+
+		// percents
+		sum = (sum * 100)/640;
+		
+		disp(sum);
+	}
 	
 }
 
