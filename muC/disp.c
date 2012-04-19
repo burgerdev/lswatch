@@ -21,6 +21,20 @@ uint8_t disp(uint32_t i)
 	return 1;
 }
 
+uint8_t disp_percent(uint32_t i)
+{
+	lcd_clear();
+	lcd_command(LCD_SET_DDADR + 7);
+	lcd_data_s('%');
+	
+	uint8_t data[8];
+	uint8_t n = itoa(i, data);
+	
+	for (uint8_t i=0;i<n;i++) lcd_data_s(data[i]);
+	
+	return 1;
+}
+
 uint8_t disp_str(uint8_t *c)
 {
 	lcd_clear();
@@ -35,12 +49,6 @@ uint8_t disp_str(uint8_t *c)
 	return 1;
 }
 
-void disp_off()
-{
-	LEDLOW_OFF();
-	LEDMID_OFF();
-	LEDHI_OFF();
-}
 
 void err()
 {

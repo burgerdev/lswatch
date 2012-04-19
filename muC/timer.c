@@ -9,28 +9,28 @@
 // heart-beat function, increments the clock by 100th second
 ISR(TIMER1_CAPT_vect)
 {
-	// disable interrupts in this function
-	cli();
+	// disable interrupts in this function (not needed)
+	//cli();
 	if (is_started)
-		timer_inc();
+		timer_inc_lowest();
 	// enable interrupts
-	sei();
+	//sei();
 }
 
 
 void start(void)
 {
-	cli();
+	//cli();
 	reset();
 	is_started = 1;
-	sei();
+	//sei();
 }
 
 void stop(void)
 {
-	cli();
+	//cli();
 	is_started = 0;
-	sei();
+	//sei();
 }
 
 void reset(void)
@@ -40,7 +40,6 @@ void reset(void)
 	time_m = 0;
 	time_s = 0;
 	time_ms = 0;
-	time_lowest = 0;
 	sei();
 }
 
@@ -66,9 +65,9 @@ void timer_inc_h(void)
 void timer_inc_m(void)
 {
 	time_m++;
-	if (time_m == 60)
+	while (time_m >= 60)
 	{
-		time_m = 0;
+		time_m -= 60;
 		timer_inc_h();
 	}
 }
@@ -76,35 +75,28 @@ void timer_inc_m(void)
 void timer_inc_s(void)
 {
 	time_s++;
-	if (time_s == 60)
+	while (time_s >= 60)
 	{
-		time_s = 0;
+		time_s -= 60;
 		timer_inc_m();
 	}
 }
 
-void timer_inc_ms(void)
+void timer_inc_ms(uint16_t inc)
 {
-	time_ms++;
-	if (time_ms == 1000)
-	{
-		time_ms = 0;
-		timer_inc_s();
-	}
+	time_ms += inc;
 }
 
 void timer_inc_lowest(void)
 {
-	time_lowest += TIMER1_COMPARE_INCREMENT;
-	while (time_lowest > TIMER1_MAX)
+		timer_inc_ms(TIMER1_LOWEST_IN_MS);
+}
+
+void timer_add(void)
+{
+	while (time_ms >= 1000)
 	{
-		time_lowest -= TIMER1_MAX;
-		timer_inc_ms();
+		time_ms -= 1000;
+		timer_inc_s();
 	}
 }
-
-void timer_inc()
-{
-	timer_inc_lowest();
-}
-
