@@ -1,3 +1,23 @@
+/*                                          
+    LSWatch, muC software for time measurement
+    Copyright (C) 2012 Markus Döring
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see http://www.gnu.org/licenses/gpl.
+*/
+
+/* This file contains the main program for the muC */
+
  
 #include "globals.h"
 
@@ -12,10 +32,8 @@
 #include "ls.h"
 
 
+// time measurement loop
 void loop_main(void);
-
-// basic ls loop
-void loop_main_test(void);
 
 // displays transmission information
 void loop_main_radio_check(void);
@@ -56,61 +74,13 @@ int main(void)
 	{
 		// if button pressed, show radio check, otherwise start timing loop
 		if (PIND & 1<<PD0)
-			loop_main_test();
+			loop_main();
 		else
 			loop_main_radio_check();
 
 	}
 
 	return 0;
-}
-
-
-
-void loop_main()
-{
-	uint8_t first = 1;
-	while(1)
-	{
-		if (first)
-		{
-			if (broken())
-			{
-				start();
-
-				if (broken_again())
-				{
-					first = 0;
-					disp_str("...");
-
-					_delay_ms(LS_WAIT_TIME_MS);
-				}
-				else
-				{
-					stop();
-				}
-				
-			}
-		}
-		else
-		{
-			if (broken())
-			{
-				if (broken_again())
-				{
-					stop();
-					disp(time_ms/10);
-					first = 1;
-
-					_delay_ms(LS_WAIT_TIME_MS);
-				}
-			}
-		}
-
-			
-		//else
-		//	_delay_ms(10);
-	}
 }
 
 
@@ -133,7 +103,8 @@ void loop_main_radio_check()
 	
 }
 
-void loop_main_test()
+
+void loop_main()
 {
 	uint8_t first = 1;
 	while(1)

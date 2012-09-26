@@ -1,3 +1,23 @@
+/*                                          
+    LSWatch, muC software for time measurement
+    Copyright (C) 2012 Markus Döring
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see http://www.gnu.org/licenses/gpl.
+*/
+
+
+
 
 #include "globals.h"
 #include <avr/io.h>
@@ -6,40 +26,36 @@
 
 
 
-// heart-beat function, increments the clock by 100th second
+// heart-beat function, increments the clock by the amount computed in timer.h via an interrupt
 ISR(TIMER1_CAPT_vect)
 {
-	// disable interrupts in this function (not needed)
-	//cli();
 	if (is_started)
 		timer_inc_lowest();
-	// enable interrupts
-	//sei();
 }
 
 
 void start(void)
 {
-	//cli();
 	reset();
 	is_started = 1;
-	//sei();
 }
 
 void stop(void)
 {
-	//cli();
 	is_started = 0;
-	//sei();
 }
 
 void reset(void)
 {
+	// ignore interrupts to avoid time corruptiom
 	cli();
+
 	time_h = 0;
 	time_m = 0;
 	time_s = 0;
 	time_ms = 0;
+
+	// allow interrupts
 	sei();
 }
 
@@ -55,6 +71,13 @@ void timer_setup(void)
 	// initialize flag
 	is_started = 0;
 }
+
+
+
+// timer incrementation functions, the milliseconds are incremented continuously, 
+// a call to timer_add prepares all the time variables for reading
+//
+// overflow of time_ms occurs after 1100h, which should be enough
 
 void timer_inc_h(void)
 {

@@ -1,3 +1,9 @@
+/*
+ * This file is taken from the article
+ * 	http://www.mikrocontroller.net/articles/AVR-GCC-Tutorial/LCD-Ansteuerung
+ * Thanks to all contributors.
+ */
+
 // Ansteuerung eines HD44780 kompatiblen LCD im 4-Bit-Interfacemodus
 // http://www.mikrocontroller.net/articles/HD44780
 // http://www.mikrocontroller.net/articles/AVR-GCC-Tutorial/LCD-Ansteuerung
