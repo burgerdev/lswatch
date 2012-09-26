@@ -150,7 +150,8 @@ void loop_main_test()
 			{
 				stop();
 				// empirical correction factor will be applied
-				disp( (time_ms*600)/5840);
+				disp(time_ms/10);
+				//disp( (time_ms*600)/5840);
 				first = 1;
 			}
 			_delay_ms(LS_WAIT_TIME_MS);
