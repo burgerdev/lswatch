@@ -1,0 +1,12 @@
+*.zip
+*.gz
+*.tgz
+*.o
+*.sym
+*.elf
+*.hex
+*.lst
+*.lss
+.dep
+*.map
+*.eep
